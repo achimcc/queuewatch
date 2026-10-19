@@ -40,9 +40,12 @@ const SUSPICIOUS: &[&str] = &[
 pub fn client_title(raw: Option<&str>) -> Option<String> {
     let name = raw.map(str::trim).filter(|n| !n.is_empty())?;
     let lower = name.to_lowercase();
-    let suspicious = SUSPICIOUS.iter().any(|s| lower.contains(s))
-        || name.starts_with('/')
-        || name.starts_with('\\');
+    // A separator ANYWHERE, not only in front: `C:\Downloads\…` and
+    // `incoming/release` are paths as much as `/data/…`. A release name with
+    // a slash in it (AC/DC) becomes the marker too — rare, and the cheaper
+    // mistake.
+    let suspicious =
+        SUSPICIOUS.iter().any(|s| lower.contains(s)) || name.contains('/') || name.contains('\\');
     if suspicious {
         return Some(UNNAMED.to_string());
     }
@@ -86,6 +89,9 @@ mod tests {
             "/data/torrents/x/release",
             r"\\nas\share\release",
             "ftp://mirror/file.iso",
+            r"C:\Downloads\release",
+            "D:/incoming/release",
+            "incoming/Heat.1995.1080p",
         ] {
             assert_eq!(client_title(Some(raw)).as_deref(), Some(UNNAMED), "{raw}");
         }
