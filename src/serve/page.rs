@@ -26,6 +26,8 @@ pub struct Context<'a> {
     pub s: &'static Strings,
     pub tz: &'a TimeZone,
     pub host: &'a str,
+    /// `serve.home_url`: the header links back to it when set.
+    pub home: Option<&'a str>,
     pub now: jiff::Timestamp,
 }
 
@@ -112,8 +114,16 @@ fn frame(ctx: &Context, refresh: bool, top: Top, body: Markup) -> Markup {
             body {
                 header.top {
                     div.wrap {
-                        @if top.age.is_some() || top.who.is_some() {
+                        @if ctx.home.is_some() || top.age.is_some() || top.who.is_some() {
                             div.session {
+                                @if let Some(home) = ctx.home {
+                                    // The way back, in the page's own voice. The
+                                    // visible text is a command; what a screen
+                                    // reader says is the sentence behind it.
+                                    a.home href=(home) aria-label={ (s.back_to) " " (super::url_host(home)) } {
+                                        "cd ~/" (super::url_host(home))
+                                    }
+                                }
                                 @if let Some(age) = &top.age {
                                     span.age { (age) }
                                 }

@@ -58,6 +58,8 @@ pub struct Settings {
     pub lang: Lang,
     pub required_group: Option<String>,
     pub tz: TimeZone,
+    /// The way back to the site's start page, if the operator named one.
+    pub home_url: Option<String>,
 }
 
 impl Settings {
@@ -77,7 +79,7 @@ impl Settings {
     }
 }
 
-fn url_host(url: &str) -> &str {
+pub(crate) fn url_host(url: &str) -> &str {
     let rest = url.split_once("://").map(|(_, r)| r).unwrap_or(url);
     rest.split(['/', ':']).next().unwrap_or(rest)
 }
@@ -163,6 +165,7 @@ pub async fn run(config: ServeConfig) -> anyhow::Result<()> {
             lang: Lang::from_code(&config.language),
             required_group: config.oidc.required_group.clone().filter(|g| !g.is_empty()),
             tz: TimeZone::system(),
+            home_url: config.home_url.clone(),
         },
     );
 
@@ -263,6 +266,7 @@ fn context(state: &AppState) -> page::Context<'_> {
         s: state.0.settings.strings(),
         tz: &state.0.settings.tz,
         host: state.0.settings.host(),
+        home: state.0.settings.home_url.as_deref(),
         now: jiff::Timestamp::now(),
     }
 }

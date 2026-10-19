@@ -79,6 +79,17 @@ a:focus-visible { outline: 2px solid var(--up); outline-offset: 3px; }
 .session > * { min-width: 0; }
 .who strong { color: var(--muted); font-weight: 600; overflow-wrap: anywhere; }
 .signout { margin: 0; }
+/* The way back sits at the left of the same row; `margin-right: auto` pushes
+   the session part to the right edge. */
+.home {
+  margin-right: auto;
+  color: var(--muted);
+  text-decoration: none;
+  transition: color .16s ease;
+}
+.home::before { content: "\2190  "; color: var(--faint); }
+.home:hover, .home:focus-visible { color: var(--up); text-shadow: 0 0 12px hsl(150 90% 55% / .35); }
+.home:focus-visible { outline: 2px solid var(--up); outline-offset: 3px; }
 
 .prompt {
   margin: 0 0 14px;

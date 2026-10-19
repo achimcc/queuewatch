@@ -74,6 +74,7 @@ fn app_requiring(provider: Provider, public_url: &str, group: Option<&str>) -> a
             lang: Lang::En,
             required_group: group.map(String::from),
             tz: jiff::tz::TimeZone::UTC,
+            home_url: None,
         },
     ))
 }

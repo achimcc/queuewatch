@@ -28,6 +28,7 @@ fn key() -> Key {
 struct Setup {
     lang: Lang,
     required_group: Option<&'static str>,
+    home_url: Option<&'static str>,
 }
 
 impl Default for Setup {
@@ -35,6 +36,7 @@ impl Default for Setup {
         Self {
             lang: Lang::En,
             required_group: None,
+            home_url: None,
         }
     }
 }
@@ -50,6 +52,7 @@ fn app(snapshot_url: String, setup: Setup) -> axum::Router {
             lang: setup.lang,
             required_group: setup.required_group.map(String::from),
             tz: jiff::tz::TimeZone::UTC,
+            home_url: setup.home_url.map(String::from),
         },
     ))
 }
@@ -625,6 +628,48 @@ async fn the_page_carries_no_inline_style() {
     }
 }
 
+/// The way back to the site's start page: there when configured, in the
+/// page's terminal voice, with a spoken label; absent otherwise.
+#[tokio::test]
+async fn the_header_links_home_only_when_configured() {
+    let server = collector(snapshot(queuewatch::snapshot::SCHEMA_VERSION)).await;
+    let cookie = session_for("ada", None, &[]);
+    let with = Setup {
+        lang: Lang::De,
+        home_url: Some("https://home.example.org"),
+        ..Setup::default()
+    };
+    let page = body_text(
+        get(
+            app(format!("{}/snapshot", server.uri()), with),
+            "/",
+            Some(&cookie),
+        )
+        .await,
+    )
+    .await;
+    assert!(
+        page.contains(r#"href="https://home.example.org""#),
+        "{page}"
+    );
+    assert!(page.contains("cd ~/home.example.org"), "{page}");
+    assert!(
+        page.contains(r#"aria-label="Zurück zu home.example.org""#),
+        "{page}"
+    );
+
+    let page = body_text(
+        get(
+            app(format!("{}/snapshot", server.uri()), Setup::default()),
+            "/",
+            Some(&cookie),
+        )
+        .await,
+    )
+    .await;
+    assert!(!page.contains(r#"class="home""#), "{page}");
+}
+
 /// The ASCII readout beside each `<progress>`: decoration, hidden from
 /// screen readers, and the `<progress>` itself carries a label.
 #[tokio::test]
@@ -798,6 +843,7 @@ async fn dump_page() {
             lang: Lang::En,
             required_group: None,
             tz: jiff::tz::TimeZone::UTC,
+            home_url: None,
         },
     ));
     let _ = get(down.clone(), "/", Some(&cookie)).await;

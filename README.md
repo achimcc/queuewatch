@@ -83,6 +83,7 @@ public_url = "https://queue.example.org"   # redirect URI: <public_url>/auth/cal
 snapshot_url = "http://10.0.0.5:8095/snapshot"
 snapshot_token_file = "/run/credentials/queuewatch-serve.service/snapshot-token"
 cookie_key_file = "/run/credentials/queuewatch-serve.service/cookie-key"  # >= 64 bytes
+home_url = "https://example.org"         # optional: a way back to your start page
 language = "en"         # or "de"
 snapshot_max_age_secs = 15
 
@@ -139,7 +140,7 @@ TLS in front of the collector. On NixOS,
 
 ```nix
 {
-  inputs.queuewatch.url = "github:achimcc/queuewatch/v0.2.0";
+  inputs.queuewatch.url = "github:achimcc/queuewatch/v0.2.1";
   # in a module:
   imports = [ inputs.queuewatch.nixosModules.default ];
   services.queuewatch = {

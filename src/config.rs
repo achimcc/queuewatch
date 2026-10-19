@@ -90,6 +90,10 @@ pub struct ServeConfig {
     pub snapshot_token_file: PathBuf,
     /// 64 bytes or more, raw or base64 — the key of the private session cookie.
     pub cookie_key_file: PathBuf,
+    /// Where the header's way back leads — the start page of the site this
+    /// page is part of. Unset: no link. http(s) only.
+    #[serde(default)]
+    pub home_url: Option<String>,
     /// UI language: `en` or `de`.
     #[serde(default = "default_language")]
     pub language: String,
@@ -157,6 +161,15 @@ impl Config {
                 serve.language
             );
         }
+        // An attribute value is escaped, a scheme is not: `javascript:` in
+        // href would run on click. The operator writes this value, but a
+        // check costs one line and the page has no other script at all.
+        if let Some(serve) = &config.serve
+            && let Some(home) = &serve.home_url
+            && !(home.starts_with("https://") || home.starts_with("http://"))
+        {
+            anyhow::bail!("serve.home_url must start with https:// or http://, not {home:?}");
+        }
         Ok(config)
     }
 }
@@ -187,6 +200,34 @@ mod tests {
         let err = toml::from_str::<Config>("[collect]\nlisten='x'\ntoken_file='t'\nradar=[]\n")
             .unwrap_err();
         assert!(err.to_string().contains("radar"), "{err}");
+    }
+
+    #[test]
+    fn a_home_url_must_be_http() {
+        let dir = std::env::temp_dir().join(format!("qw-home-{}", std::process::id()));
+        std::fs::create_dir_all(&dir).unwrap();
+        let file = dir.join("c.toml");
+        let base = "[serve]\nlisten='x'\npublic_url='https://q'\nsnapshot_url='http://c'\n\
+                    snapshot_token_file='/t'\ncookie_key_file='/k'\n";
+        let oidc = "[serve.oidc]\nissuer='https://i'\nclient_id='c'\nclient_secret_file='/s'\n";
+        std::fs::write(
+            &file,
+            format!("{base}home_url='javascript:alert(1)'\n{oidc}"),
+        )
+        .unwrap();
+        let err = Config::load(&file).unwrap_err().to_string();
+        assert!(err.contains("home_url"), "{err}");
+        std::fs::write(
+            &file,
+            format!("{base}home_url='https://home.example.org'\n{oidc}"),
+        )
+        .unwrap();
+        let config = Config::load(&file).unwrap();
+        assert_eq!(
+            config.serve.unwrap().home_url.as_deref(),
+            Some("https://home.example.org")
+        );
+        std::fs::remove_dir_all(&dir).unwrap();
     }
 
     #[test]
