@@ -265,7 +265,7 @@ async fn a_signed_in_person_sees_only_their_own_requests_but_the_whole_queue() {
     assert!(section(&page, "calendar", "recent").contains("Upcoming Episode"));
     assert!(section(&page, "recent", "services").contains("Fresh Album"));
     let services = section(&page, "services", "</main>");
-    assert!(services.contains("7 of 8 sources"), "{services}");
+    assert!(services.contains("7/8 sources up"), "{services}");
     assert!(
         services.contains("Usenet downloads") && services.contains("not reachable"),
         "{services}"
@@ -595,4 +595,215 @@ async fn signing_in_without_a_provider_says_so() {
     )
     .await;
     assert_eq!(response.status(), StatusCode::SERVICE_UNAVAILABLE);
+}
+
+/// The Content-Security-Policy forbids inline styles, so the page must not
+/// rely on one anywhere — a `style=` would simply be dropped by the browser.
+#[tokio::test]
+async fn the_page_carries_no_inline_style() {
+    let server = collector(snapshot(1)).await;
+    let cookie = session_for("ada", None, &[]);
+    for lang in [Lang::En, Lang::De] {
+        let setup = Setup {
+            lang,
+            ..Setup::default()
+        };
+        let page = body_text(
+            get(
+                app(format!("{}/snapshot", server.uri()), setup),
+                "/",
+                Some(&cookie),
+            )
+            .await,
+        )
+        .await;
+        assert!(!page.contains("style="), "{page}");
+        assert!(!page.contains("<style"), "{page}");
+    }
+}
+
+/// The ASCII readout beside each `<progress>`: decoration, hidden from
+/// screen readers, and the `<progress>` itself carries a label.
+#[tokio::test]
+async fn the_ascii_bar_renders_empty_half_and_full() {
+    let mut body = snapshot(1);
+    body["queue"] = json!([
+        { "kind": "movie", "title": "Empty", "ids": {}, "transport": "usenet",
+          "state": "queued", "origin": "manager", "progress": 0.0 },
+        { "kind": "movie", "title": "Half", "ids": {}, "transport": "usenet",
+          "state": "downloading", "origin": "manager", "progress": 0.52 },
+        { "kind": "movie", "title": "Full", "ids": {}, "transport": "usenet",
+          "state": "importing", "origin": "manager", "progress": 1.0 }
+    ]);
+    let server = collector(body).await;
+    let cookie = session_for("ada", None, &[]);
+    let page = body_text(
+        get(
+            app(format!("{}/snapshot", server.uri()), Setup::default()),
+            "/",
+            Some(&cookie),
+        )
+        .await,
+    )
+    .await;
+    let queue = section(&page, "queue", "calendar");
+    for (bar, pct) in [
+        ("[----------------]", "0%"),
+        ("[########--------]", "52%"),
+        ("[################]", "100%"),
+    ] {
+        assert!(
+            queue.contains(&format!(
+                "<span class=\"ascii\" aria-hidden=\"true\">{bar}</span><span class=\"pct\">{pct}</span>"
+            )),
+            "{bar} {pct} missing: {queue}"
+        );
+    }
+    assert!(queue.contains("aria-label=\"Progress: Half\""), "{queue}");
+}
+
+/// Not a test: writes a realistic page, in English and German, plus the
+/// stylesheet, for looking at in a browser.
+///
+/// `QUEUEWATCH_DUMP_DIR=<dir> cargo test --test serve -- --ignored dump_page`
+/// writes `<dir>/en/index.html`, `<dir>/de/index.html`,
+/// `<dir>/en-down/index.html` (collector gone, last good data shown) and
+/// `<dir>/style.css`; serve `<dir>` and open `/en/`.
+#[tokio::test]
+#[ignore]
+async fn dump_page() {
+    let Ok(dir) = std::env::var("QUEUEWATCH_DUMP_DIR") else {
+        eprintln!("QUEUEWATCH_DUMP_DIR is not set; nothing written");
+        return;
+    };
+    let dir = std::path::PathBuf::from(dir);
+    let now = jiff::Timestamp::now();
+    let mins = |m: i64| now + jiff::SignedDuration::from_mins(m);
+    let long_name = "The.Remarkably.Long.Release.Name.Without.A.Single.Space.2026.\
+                     German.DL.2160p.UHD.BluRay.HDR10Plus.DV.x265-SOMEGROUP.mkv";
+    let long_name = &format!("{long_name}{}", "X".repeat(120 - long_name.len()));
+    assert_eq!(long_name.len(), 120);
+    let body = json!({
+        "version": 1,
+        "taken_at": mins(-3).to_string(),
+        "sources": [
+            { "kind": "radarr", "label": "Movies", "available": true },
+            { "kind": "sonarr", "label": "Series", "available": true },
+            { "kind": "lidarr", "label": "Music", "available": true },
+            { "kind": "prowlarr", "label": "Search", "available": true },
+            { "kind": "sabnzbd", "label": "Usenet downloads", "available": true },
+            { "kind": "qbittorrent", "label": "Torrent downloads", "available": false },
+            { "kind": "seerr", "label": "Requests", "available": true }
+        ],
+        "queue": [
+            { "kind": "movie", "title": "Arrival", "ids": {}, "transport": "usenet",
+              "state": "downloading", "origin": "manager", "progress": 0.52,
+              "size_bytes": 14_300_000_000u64, "eta": mins(38).to_string() },
+            { "kind": "other", "title": long_name, "ids": {}, "transport": "torrent",
+              "state": "stalled", "origin": "client", "progress": 0.07,
+              "size_bytes": 61_000_000_000u64 },
+            { "kind": "episode", "title": "Severance S02E04", "ids": {}, "transport": "usenet",
+              "state": "queued", "origin": "manager", "progress": 0.0 },
+            { "kind": "album", "title": "Radiohead — In Rainbows", "ids": {},
+              "transport": "soulseek", "state": "importing", "origin": "manager",
+              "progress": 1.0, "size_bytes": 412_000_000u64 },
+            { "kind": "movie", "title": "Paused Movie", "ids": {}, "transport": "hoster",
+              "state": "paused", "origin": "manager", "progress": 0.31 },
+            { "kind": "episode", "title": "Andor S02E01", "ids": {}, "transport": "torrent",
+              "state": "failed", "origin": "manager", "progress": 0.88 }
+        ],
+        "indexers": { "enabled": 8, "healthy": 7, "known": true },
+        "calendar": [
+            { "kind": "episode", "title": "Slow Horses S05E03", "ids": {},
+              "airs_at": mins(300).to_string(), "has_file": false },
+            { "kind": "movie", "title": "Dune: Part Three", "ids": {},
+              "airs_at": mins(60 * 24 * 4).to_string(), "has_file": false },
+            { "kind": "episode", "title": "The Bear S04E01", "ids": {},
+              "airs_at": mins(60 * 26).to_string(), "has_file": true }
+        ],
+        "recent": [
+            { "kind": "movie", "title": "Perfect Days", "ids": {}, "imported_at": mins(-12).to_string() },
+            { "kind": "album", "title": "Bon Iver — SABLE, fABLE", "ids": {}, "imported_at": mins(-190).to_string() },
+            { "kind": "episode", "title": "Shogun S01E10", "ids": {}, "imported_at": mins(-60 * 30).to_string() }
+        ],
+        "requests": [
+            { "kind": "movie", "title": "Arrival", "ids": {},
+              "requested_by": { "username": "ada" }, "requested_at": mins(-60 * 5).to_string(),
+              "state": "processing", "progress": 0.52, "eta": mins(38).to_string() },
+            { "kind": "movie", "title": "Past Lives", "ids": {},
+              "requested_by": { "username": "ada" }, "requested_at": mins(-60 * 30).to_string(),
+              "state": "pending" },
+            { "kind": "episode", "title": "Severance", "ids": {},
+              "requested_by": { "username": "ada" }, "requested_at": mins(-60 * 80).to_string(),
+              "state": "partial" },
+            { "kind": "movie", "title": "Perfect Days", "ids": {},
+              "requested_by": { "username": "ada" }, "requested_at": mins(-60 * 100).to_string(),
+              "state": "available" },
+            { "kind": "movie", "title": "Some Obscure Film", "ids": {},
+              "requested_by": { "username": "ada" }, "requested_at": mins(-60 * 200).to_string(),
+              "state": "declined" },
+            { "kind": "album", "title": "Lost Album", "ids": {},
+              "requested_by": { "username": "ada" }, "requested_at": mins(-60 * 250).to_string(),
+              "state": "failed" }
+        ]
+    });
+    let cookie = session_for("ada", None, &[]);
+    let server = collector(body.clone()).await;
+    for (name, lang) in [("en", Lang::En), ("de", Lang::De)] {
+        let setup = Setup {
+            lang,
+            ..Setup::default()
+        };
+        let page = body_text(
+            get(
+                app(format!("{}/snapshot", server.uri()), setup),
+                "/",
+                Some(&cookie),
+            )
+            .await,
+        )
+        .await;
+        std::fs::create_dir_all(dir.join(name)).unwrap();
+        std::fs::write(dir.join(name).join("index.html"), page).unwrap();
+    }
+
+    // The collector answers once, then goes away: the page keeps the last
+    // good snapshot and says so.
+    let gone = MockServer::start().await;
+    Mock::given(method("GET"))
+        .respond_with(ResponseTemplate::new(200).set_body_json(body))
+        .up_to_n_times(1)
+        .with_priority(1)
+        .mount(&gone)
+        .await;
+    Mock::given(method("GET"))
+        .respond_with(ResponseTemplate::new(503))
+        .mount(&gone)
+        .await;
+    let snapshots = SnapshotSource::new(
+        format!("{}/snapshot", gone.uri()),
+        TOKEN,
+        Duration::from_millis(1),
+    )
+    .unwrap();
+    let down = router(AppState::new(
+        key(),
+        None,
+        snapshots,
+        Settings {
+            public_url: "https://queue.example.org".into(),
+            lang: Lang::En,
+            required_group: None,
+            tz: jiff::tz::TimeZone::UTC,
+        },
+    ));
+    let _ = get(down.clone(), "/", Some(&cookie)).await;
+    tokio::time::sleep(Duration::from_millis(5)).await;
+    let page = body_text(get(down.clone(), "/", Some(&cookie)).await).await;
+    assert!(page.contains(EN.unreachable), "{page}");
+    std::fs::create_dir_all(dir.join("en-down")).unwrap();
+    std::fs::write(dir.join("en-down").join("index.html"), page).unwrap();
+
+    let css = body_text(get(down, "/style.css", None).await).await;
+    std::fs::write(dir.join("style.css"), css).unwrap();
 }

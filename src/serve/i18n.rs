@@ -61,7 +61,6 @@ pub struct Strings {
     pub yesterday: &'static str,
     pub search_unknown: &'static str,
     pub search_none: &'static str,
-    pub search_down: &'static str,
     pub forbidden_title: &'static str,
     pub forbidden_text: &'static str,
     pub login_failed_title: &'static str,
@@ -74,23 +73,30 @@ pub struct Strings {
     /// Stands in for [`crate::snapshot::UNNAMED`]: a download whose name the
     /// collector would not pass on.
     pub unnamed_download: &'static str,
+    /// The one line under the wordmark.
+    pub tagline: &'static str,
+    /// The argument of the `echo` in the foot.
+    pub footer_echo: &'static str,
+    /// The link to the source code (AGPL: whoever uses the page over the
+    /// network gets to read what it runs).
+    pub source_link: &'static str,
 }
 
 pub const EN: Strings = Strings {
     lang: Lang::En,
     my_requests: "My requests",
-    my_requests_empty: "You have no open requests right now.",
+    my_requests_empty: "no open requests",
     downloading: "Downloading now",
-    downloading_empty: "Nothing is downloading right now.",
+    downloading_empty: "nothing downloading",
     coming_up: "Coming up",
-    coming_up_empty: "Nothing scheduled for the next few days.",
+    coming_up_empty: "nothing scheduled",
     recent: "Recently added",
-    recent_empty: "Nothing new in the last few days.",
+    recent_empty: "nothing new lately",
     services: "Search & services",
     signed_in_as: "Signed in as",
     logout: "Sign out",
-    unreachable: "The collector is unreachable right now, so this page cannot be updated.",
-    no_data_yet: "There is no data yet.",
+    unreachable: "collector unreachable",
+    no_data_yet: "no data yet",
     reachable: "reachable",
     not_reachable: "not reachable",
     already_there: "already there",
@@ -99,9 +105,8 @@ pub const EN: Strings = Strings {
     today: "today",
     tomorrow: "tomorrow",
     yesterday: "yesterday",
-    search_unknown: "Whether search works is unknown right now.",
-    search_none: "No search sources are set up.",
-    search_down: "Search is down: no source is reachable.",
+    search_unknown: "unknown",
+    search_none: "no sources set up",
     forbidden_title: "Not for this account",
     forbidden_text: "You are signed in, but this page is not open for your account. \
                      Ask whoever runs it to let you in.",
@@ -114,24 +119,26 @@ pub const EN: Strings = Strings {
     progress_label: "Progress",
     sources_label: "Services",
     unnamed_download: "(unnamed download)",
+    tagline: "What your server is fetching, right now.",
+    footer_echo: "read-only. no keys on this box.",
+    source_link: "source",
 };
 
 pub const DE: Strings = Strings {
     lang: Lang::De,
     my_requests: "Meine Wünsche",
-    my_requests_empty: "Du hast gerade keine offenen Wünsche.",
+    my_requests_empty: "keine offenen Wünsche",
     downloading: "Lädt gerade",
-    downloading_empty: "Gerade lädt nichts.",
+    downloading_empty: "gerade lädt nichts",
     coming_up: "Demnächst",
-    coming_up_empty: "In den nächsten Tagen kommt nichts.",
+    coming_up_empty: "nichts geplant",
     recent: "Neu da",
-    recent_empty: "In den letzten Tagen ist nichts Neues dazugekommen.",
+    recent_empty: "nichts Neues",
     services: "Suche & Dienste",
     signed_in_as: "Angemeldet als",
     logout: "Abmelden",
-    unreachable: "Der Sammeldienst ist gerade nicht erreichbar, deshalb kann diese Seite \
-                  nicht aktualisiert werden.",
-    no_data_yet: "Noch keine Daten da.",
+    unreachable: "Sammeldienst nicht erreichbar",
+    no_data_yet: "noch keine Daten",
     reachable: "erreichbar",
     not_reachable: "nicht erreichbar",
     already_there: "schon da",
@@ -140,9 +147,8 @@ pub const DE: Strings = Strings {
     today: "heute",
     tomorrow: "morgen",
     yesterday: "gestern",
-    search_unknown: "Ob die Suche geht, ist gerade unbekannt.",
-    search_none: "Es sind keine Suchquellen eingerichtet.",
-    search_down: "Die Suche geht gerade nicht: keine Quelle ist erreichbar.",
+    search_unknown: "unbekannt",
+    search_none: "keine Quellen eingerichtet",
     forbidden_title: "Nicht für dieses Konto",
     forbidden_text: "Du bist angemeldet, aber diese Seite ist für dein Konto nicht freigegeben. \
                      Frag am besten die Person, die sie betreibt.",
@@ -155,6 +161,9 @@ pub const DE: Strings = Strings {
     progress_label: "Fortschritt",
     sources_label: "Dienste",
     unnamed_download: "(Download ohne Namen)",
+    tagline: "Was der Server gerade holt — live.",
+    footer_echo: "nur lesend. hier liegt kein schlüssel.",
+    source_link: "Quelltext",
 };
 
 impl Strings {
@@ -174,14 +183,8 @@ impl Strings {
 
     pub fn last_good(&self, secs_ago: i64) -> String {
         match self.lang {
-            Lang::En => format!(
-                "You are seeing the last known state, {}.",
-                self.ago(secs_ago)
-            ),
-            Lang::De => format!(
-                "Du siehst den letzten bekannten Stand, {}.",
-                self.ago(secs_ago)
-            ),
+            Lang::En => format!("showing data from {}", self.ago(secs_ago)),
+            Lang::De => format!("du siehst den Stand von {}", self.ago(secs_ago)),
         }
     }
 
@@ -192,21 +195,11 @@ impl Strings {
         }
     }
 
-    pub fn search_works(&self, healthy: u32, enabled: u32) -> String {
+    /// The answer to `search --health`: "7/8 sources up".
+    pub fn sources_up(&self, healthy: u32, enabled: u32) -> String {
         match self.lang {
-            Lang::En => format!("Search works: {healthy} of {enabled} sources reachable"),
-            Lang::De => format!("Suche geht: {healthy} von {enabled} Quellen erreichbar"),
-        }
-    }
-
-    pub fn search_partly(&self, healthy: u32, enabled: u32) -> String {
-        match self.lang {
-            Lang::En => {
-                format!("Search works, but only {healthy} of {enabled} sources are reachable")
-            }
-            Lang::De => {
-                format!("Suche geht, aber nur {healthy} von {enabled} Quellen sind erreichbar")
-            }
+            Lang::En => format!("{healthy}/{enabled} sources up"),
+            Lang::De => format!("{healthy}/{enabled} Quellen erreichbar"),
         }
     }
 
