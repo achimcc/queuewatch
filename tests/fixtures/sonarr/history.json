@@ -1,0 +1,14 @@
+[
+  {
+    "id": 7001,
+    "episodeId": 30,
+    "seriesId": 3,
+    "sourceTitle": "Severance.S02E02.1080p.WEB-DL-GRP",
+    "date": "@DAY-2@",
+    "downloadId": "2222222222222222222222222222222222222222",
+    "eventType": "downloadFolderImported",
+    "data": { "importedPath": "/data/media/tv/Severance/Season 2/S02E02.mkv", "indexer": "SecretTracker" },
+    "episode": { "id": 30, "seriesId": 3, "seasonNumber": 2, "episodeNumber": 2, "title": "Goodbye, Mrs. Selvig", "hasFile": true },
+    "series": { "id": 3, "title": "Severance", "tvdbId": 371980, "tmdbId": 95396 }
+  }
+]

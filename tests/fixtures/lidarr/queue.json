@@ -1,0 +1,28 @@
+{
+  "page": 1,
+  "pageSize": 1000,
+  "totalRecords": 1,
+  "records": [
+    {
+      "id": 301,
+      "artistId": 5,
+      "albumId": 51,
+      "artist": { "id": 5, "artistName": "Björk", "foreignArtistId": "87c5dedd-371d-4a53-9f7f-80522fb7f3cb", "path": "/data/media/music/Björk" },
+      "album": { "id": 51, "title": "Fossora", "foreignAlbumId": "a7d4b6a4-6f8e-4b0e-9c1f-6f1e2a3b4c5d", "releaseDate": "2022-09-30T00:00:00Z" },
+      "size": 524288000,
+      "title": "Björk - Fossora (2022) [FLAC]",
+      "sizeleft": 262144000,
+      "estimatedCompletionTime": "@DAY+0@",
+      "status": "Downloading",
+      "trackedDownloadStatus": "ok",
+      "trackedDownloadState": "downloading",
+      "statusMessages": [],
+      "errorMessage": "passkey=SEKRET123",
+      "downloadId": "SABnzbd_nzo_fossora",
+      "protocol": "usenet",
+      "downloadClient": "SABnzbd",
+      "indexer": "NZBSecret",
+      "outputPath": "/data/usenet/incomplete/fossora"
+    }
+  ]
+}

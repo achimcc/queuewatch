@@ -1,0 +1,13 @@
+[
+  {
+    "id": 8001,
+    "albumId": 52,
+    "artistId": 5,
+    "sourceTitle": "Björk - Vespertine (2001) [FLAC]",
+    "date": "@DAY-1@",
+    "eventType": "downloadImported",
+    "data": { "downloadClient": "SABnzbd", "droppedPath": "/data/usenet/complete/vespertine" },
+    "album": { "id": 52, "title": "Vespertine", "foreignAlbumId": "c0ffee00-0000-4000-8000-000000000002" },
+    "artist": { "id": 5, "artistName": "Björk" }
+  }
+]

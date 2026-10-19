@@ -1,0 +1,59 @@
+[
+  {
+    "username": "secret_sharer_42",
+    "directories": [
+      {
+        "directory": "@@secret\\data\\SEKRET123\\The Cure\\Disintegration (1989)",
+        "fileCount": 2,
+        "files": [
+          {
+            "id": "0f9b4f6e-1d2c-4b7a-9e3f-111111111111",
+            "username": "secret_sharer_42",
+            "direction": "Download",
+            "filename": "@@secret\\data\\SEKRET123\\The Cure\\Disintegration (1989)\\01 Plainsong.flac",
+            "size": 40000000,
+            "startOffset": 0,
+            "state": "InProgress",
+            "stateDescription": "InProgress at /data/torrents/x",
+            "requestedAt": "2026-10-19T07:00:00",
+            "startedAt": "2026-10-19T07:00:05",
+            "bytesTransferred": 30000000,
+            "averageSpeed": 1000000,
+            "bytesRemaining": 10000000,
+            "percentComplete": 75,
+            "exception": "https://tracker.example/announce?passkey=SEKRET123"
+          },
+          {
+            "id": "0f9b4f6e-1d2c-4b7a-9e3f-222222222222",
+            "username": "secret_sharer_42",
+            "direction": "Download",
+            "filename": "@@secret\\data\\SEKRET123\\The Cure\\Disintegration (1989)\\02 Pictures of You.flac",
+            "size": 60000000,
+            "startOffset": 0,
+            "state": "Queued, Remotely",
+            "requestedAt": "2026-10-19T07:00:00",
+            "bytesTransferred": 0,
+            "averageSpeed": 0,
+            "placeInQueue": 3
+          }
+        ]
+      },
+      {
+        "directory": "@@secret\\music\\Done Album",
+        "fileCount": 1,
+        "files": [
+          {
+            "id": "0f9b4f6e-1d2c-4b7a-9e3f-333333333333",
+            "username": "secret_sharer_42",
+            "direction": "Download",
+            "filename": "@@secret\\music\\Done Album\\01.flac",
+            "size": 1000,
+            "state": "Completed, Succeeded",
+            "bytesTransferred": 1000,
+            "averageSpeed": 500
+          }
+        ]
+      }
+    ]
+  }
+]

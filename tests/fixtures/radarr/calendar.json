@@ -1,0 +1,22 @@
+[
+  {
+    "id": 9,
+    "title": "Mickey 17",
+    "year": 2025,
+    "tmdbId": 696506,
+    "inCinemas": "@DAY-200@",
+    "digitalRelease": "@DAY+2@",
+    "physicalRelease": "@DAY+5@",
+    "hasFile": false,
+    "path": "/data/media/movies/Mickey 17 (2025)",
+    "overview": "Free text from https://tracker.example/announce?passkey=SEKRET123"
+  },
+  {
+    "id": 10,
+    "title": "Out Of Window",
+    "year": 2027,
+    "tmdbId": 1,
+    "inCinemas": "@DAY+300@",
+    "hasFile": false
+  }
+]

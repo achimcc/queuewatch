@@ -1,0 +1,344 @@
+/* queuewatch, in the clothes of the operator's front page.
+ *
+ * The palette and the two font stacks are the ones reelpick copies from the
+ * front page (`lib/palette.nix` in the operator's repository): the same dark
+ * ground, the same green, the same mono headings. COPIED, NOT IMPORTED —
+ * this page must render the same on a host that has never heard of that one.
+ *
+ * Dark is the default, as there. A light variant follows for readers whose
+ * system asks for it (`prefers-color-scheme: light`): the page is read on
+ * phones in daylight, by people who did not choose a terminal look.
+ *
+ * Mobile first: one column; two columns for calendar and recent from 760px.
+ * No inline styles anywhere — the Content-Security-Policy forbids them.
+ */
+
+:root {
+  color-scheme: dark;
+  --grund: #07090a;
+  --schleier: #0d1114;
+  --rand: #1b2327;
+  --text: #c8d6cd;
+  --leise: #8fa39a;
+  --sehrleise: #75887f;
+  --auf: #4ef08a;
+  --zu: #ff3f74;
+  --warn: #f0c34e;
+  --unterwegs: #4ec3f0;
+  --mono: ui-monospace, SFMono-Regular, 'SF Mono', 'JetBrains Mono', Menlo, Consolas, 'Liberation Mono', monospace;
+  --lesbar: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    color-scheme: light;
+    --grund: #f6f8f7;
+    --schleier: #ffffff;
+    --rand: #d5dfda;
+    --text: #17211c;
+    --leise: #4b5d54;
+    --sehrleise: #5f7268;
+    --auf: #0b8a3e;
+    --zu: #c4144a;
+    --warn: #8a6200;
+    --unterwegs: #0b6b99;
+  }
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  margin: 0;
+  background: var(--grund);
+  color: var(--text);
+  font: 400 16px/1.55 var(--lesbar);
+  -webkit-font-smoothing: antialiased;
+}
+
+.bahn { max-width: 1140px; margin: 0 auto; padding: 0 16px; }
+@media (min-width: 600px) { .bahn { padding: 0 24px; } }
+
+.leise { color: var(--leise); }
+
+/* --- The head ---------------------------------------------------------- */
+
+.kopf {
+  position: relative;
+  padding: 28px 0 22px;
+  border-bottom: 1px solid var(--rand);
+  background:
+    radial-gradient(48rem 26rem at 8% -30%, hsl(150 90% 45% / .10), transparent 62%),
+    radial-gradient(40rem 22rem at 92% -20%, hsl(320 90% 55% / .07), transparent 65%);
+}
+
+.kopf::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: repeating-linear-gradient(to bottom, rgb(255 255 255 / .022) 0 1px, transparent 1px 3px);
+}
+.kopf .bahn { position: relative; z-index: 1; }
+
+.prompt {
+  margin: 0 0 12px;
+  font-family: var(--mono);
+  font-size: 13px;
+  color: var(--sehrleise);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.prompt b { color: var(--auf); font-weight: 500; }
+
+.kopfzeile {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 24px;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* The wordmark is not a heading: the headings are the four sections. */
+.wortmarke {
+  margin: 0;
+  font-family: var(--mono);
+  font-size: clamp(26px, 5.4vw, 40px);
+  line-height: 1.1;
+  font-weight: 600;
+  color: var(--auf);
+  text-shadow: 0 0 24px hsl(150 90% 55% / .35);
+}
+
+.kursor {
+  display: inline-block;
+  width: .58em;
+  height: 1em;
+  margin-left: .12em;
+  vertical-align: -.12em;
+  background: var(--auf);
+  animation: blink 1.06s steps(1) infinite;
+}
+@keyframes blink { 50% { opacity: 0; } }
+
+.wer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 10px;
+  font-size: 14px;
+  min-width: 0;
+}
+.wer strong { overflow-wrap: anywhere; }
+.abmelden { margin: 0; }
+
+.knopf {
+  display: inline-block;
+  padding: 7px 12px;
+  border: 1px solid var(--auf);
+  border-radius: 3px;
+  color: var(--auf);
+  background: transparent;
+  font-family: var(--mono);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  text-decoration: none;
+  cursor: pointer;
+}
+.knopf:hover, .knopf:focus-visible { color: var(--grund); background: var(--auf); }
+.knopf:focus-visible { outline: 2px solid var(--auf); outline-offset: 3px; }
+
+.stand {
+  margin: 14px 0 0;
+  font-family: var(--mono);
+  font-size: 12.5px;
+  color: var(--sehrleise);
+}
+
+.hinweis {
+  margin: 14px 0 0;
+  padding: 10px 14px;
+  border: 1px solid var(--rand);
+  border-left: 3px solid var(--warn);
+  border-radius: 4px;
+  background: var(--schleier);
+}
+.hinweis p { margin: 0; }
+.hinweis p + p { margin-top: 4px; color: var(--leise); font-size: 14px; }
+
+/* --- Sections ---------------------------------------------------------- */
+
+main { padding: 28px 0 12px; }
+
+.abschnitt { margin: 0 0 36px; min-width: 0; }
+
+.abschnitt-titel {
+  margin: 0 0 14px;
+  font-family: var(--mono);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--auf);
+}
+.abschnitt-titel::before { content: "[ "; }
+.abschnitt-titel::after { content: " ]"; }
+
+.paar { display: grid; grid-template-columns: minmax(0, 1fr); gap: 0 24px; }
+@media (min-width: 760px) { .paar { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+
+.leer { margin: 0; color: var(--leise); }
+
+.liste {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 10px;
+  /* `min(340px, 100%)`: a track wider than its column would overflow and
+     take the whole document with it on a narrow phone. */
+  grid-template-columns: repeat(auto-fill, minmax(min(340px, 100%), 1fr));
+}
+.liste.knapp { grid-template-columns: minmax(0, 1fr); gap: 8px; }
+
+.eintrag {
+  padding: 14px 16px;
+  border: 1px solid var(--rand);
+  border-radius: 6px;
+  background: var(--schleier);
+  min-width: 0;
+}
+
+.kopf-eintrag { display: flex; gap: 10px; align-items: baseline; min-width: 0; }
+
+.titel {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1.35;
+  color: var(--text);
+  overflow-wrap: anywhere;
+  min-width: 0;
+}
+
+.art {
+  flex: none;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--sehrleise);
+}
+
+.wann {
+  margin: 0 0 4px;
+  font-family: var(--mono);
+  font-size: 12.5px;
+  color: var(--leise);
+}
+
+.marken {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 10px;
+  align-items: center;
+  margin: 8px 0 0;
+  font-size: 13px;
+}
+
+.marke {
+  display: inline-block;
+  padding: 1px 8px;
+  border: 1px solid currentColor;
+  border-radius: 999px;
+  font-family: var(--mono);
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--leise);
+}
+.marke.gut { color: var(--auf); }
+.marke.unterwegs { color: var(--unterwegs); }
+.marke.warn { color: var(--warn); }
+.marke.schlecht { color: var(--zu); }
+.marke.weg { color: var(--sehrleise); border-style: dashed; }
+
+/* --- Progress: a native <progress>, styled per engine ------------------ */
+
+.fortschritt { margin-top: 10px; }
+
+progress {
+  display: block;
+  width: 100%;
+  height: 8px;
+  border: 0;
+  border-radius: 4px;
+  background: var(--rand);
+  color: var(--auf);
+  appearance: none;
+  -webkit-appearance: none;
+  overflow: hidden;
+}
+progress::-webkit-progress-bar { background: var(--rand); border-radius: 4px; }
+progress::-webkit-progress-value { background: var(--auf); border-radius: 4px; }
+progress::-moz-progress-bar { background: var(--auf); border-radius: 4px; }
+
+.zahlen {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px 14px;
+  margin: 6px 0 0;
+  font-family: var(--mono);
+  font-size: 12.5px;
+  color: var(--leise);
+}
+
+/* --- Search & services ------------------------------------------------- */
+
+.suche {
+  margin: 0 0 12px;
+  padding: 10px 14px;
+  border: 1px solid var(--rand);
+  border-left: 3px solid var(--sehrleise);
+  border-radius: 4px;
+  background: var(--schleier);
+}
+.suche.gut { border-left-color: var(--auf); }
+.suche.warn { border-left-color: var(--warn); }
+.suche.schlecht { border-left-color: var(--zu); }
+
+.dienste {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 6px 24px;
+  grid-template-columns: repeat(auto-fill, minmax(min(260px, 100%), 1fr));
+}
+.dienste li { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 6px; min-width: 0; }
+.dienste .name { overflow-wrap: anywhere; }
+.dienste .zustand { margin-left: auto; font-family: var(--mono); font-size: 12px; color: var(--leise); }
+.dienste .aus .zustand { color: var(--zu); }
+.punkt { width: 9px; height: 9px; flex: none; border-radius: 50%; background: var(--auf); }
+.aus .punkt { background: var(--zu); }
+
+/* --- Messages and foot ------------------------------------------------- */
+
+.meldung { max-width: 60ch; }
+.meldung h1.abschnitt-titel { font-size: 15px; }
+
+footer {
+  margin-top: 24px;
+  padding: 18px 0 32px;
+  border-top: 1px solid var(--rand);
+  color: var(--sehrleise);
+  font-size: 13.5px;
+}
+footer .prompt { margin: 0; }
+
+@media (prefers-reduced-motion: reduce) {
+  .kursor { animation: none; }
+  .kopf::after { display: none; }
+}

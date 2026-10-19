@@ -1,0 +1,93 @@
+{
+  "page": 1,
+  "pageSize": 1000,
+  "sortKey": "timeleft",
+  "sortDirection": "ascending",
+  "totalRecords": 3,
+  "records": [
+    {
+      "id": 101,
+      "movieId": 7,
+      "movie": {
+        "id": 7,
+        "title": "Dune: Part Two",
+        "originalTitle": "Dune: Part Two",
+        "year": 2024,
+        "tmdbId": 693134,
+        "imdbId": "tt15239678",
+        "path": "/data/media/movies/Dune Part Two (2024)",
+        "rootFolderPath": "/data/media/movies",
+        "hasFile": false,
+        "monitored": true
+      },
+      "size": 21474836480,
+      "title": "Dune.Part.Two.2024.2160p.UHD.BluRay.x265-GRP",
+      "sizeleft": 7516192768,
+      "timeleft": "02:10:00",
+      "estimatedCompletionTime": "@DAY+0@",
+      "added": "@DAY-1@",
+      "status": "downloading",
+      "trackedDownloadStatus": "warning",
+      "trackedDownloadState": "downloading",
+      "statusMessages": [
+        {
+          "title": "Dune.Part.Two.2024.2160p.UHD.BluRay.x265-GRP",
+          "messages": [
+            "Tracker error: https://tracker.example/announce?passkey=SEKRET123 returned 403"
+          ]
+        }
+      ],
+      "errorMessage": "Unable to reach https://tracker.example/announce?passkey=SEKRET123",
+      "downloadId": "ABCDEF0123456789ABCDEF0123456789ABCDEF01",
+      "protocol": "torrent",
+      "downloadClient": "qBittorrent private-box",
+      "downloadClientHasPostImportCategory": false,
+      "indexer": "SecretTracker (Prowlarr)",
+      "outputPath": "/data/torrents/x/Dune.Part.Two.2024.2160p.UHD.BluRay.x265-GRP"
+    },
+    {
+      "id": 102,
+      "movieId": 8,
+      "movie": {
+        "id": 8,
+        "title": "Heat",
+        "year": 1995,
+        "tmdbId": 949,
+        "hasFile": false,
+        "path": "/data/media/movies/Heat (1995)"
+      },
+      "size": 8589934592,
+      "title": "Heat.1995.1080p.BluRay.x264-NZB",
+      "sizeleft": 0,
+      "timeleft": "00:00:00",
+      "estimatedCompletionTime": null,
+      "status": "completed",
+      "trackedDownloadStatus": "ok",
+      "trackedDownloadState": "importPending",
+      "statusMessages": [],
+      "downloadId": "SABnzbd_nzo_heat1995",
+      "protocol": "usenet",
+      "downloadClient": "SABnzbd",
+      "indexer": "NZBSecret",
+      "outputPath": "/data/usenet/complete/Heat.1995.1080p.BluRay.x264-NZB"
+    },
+    {
+      "id": 103,
+      "movieId": 0,
+      "size": 1048576000,
+      "title": "https://idx.example/getnzb?apikey=IDXKEY123&id=42",
+      "sizeleft": 1048576000,
+      "timeleft": null,
+      "estimatedCompletionTime": null,
+      "status": "queued",
+      "trackedDownloadStatus": "ok",
+      "trackedDownloadState": "downloading",
+      "statusMessages": [],
+      "downloadId": "SABnzbd_nzo_byurl",
+      "protocol": "usenet",
+      "downloadClient": "SABnzbd private-box",
+      "indexer": "NZBSecret IDXKEY123",
+      "outputPath": "/data/usenet/incomplete/IDXKEY123"
+    }
+  ]
+}

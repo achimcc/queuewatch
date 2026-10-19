@@ -1,0 +1,66 @@
+{
+  "queue": {
+    "version": "5.1.2",
+    "paused": false,
+    "kbpersec": "10240.00",
+    "speed": "10.0 M",
+    "mbleft": "750.00",
+    "mb": "1500.00",
+    "status": "Downloading",
+    "timeleft": "0:01:15",
+    "noofslots_total": 3,
+    "noofslots": 3,
+    "slots": [
+      {
+        "index": 0,
+        "nzo_id": "SABnzbd_nzo_fossora",
+        "unpackopts": "3",
+        "priority": "Normal",
+        "script": "/data/scripts/SEKRET123.sh",
+        "filename": "Björk - Fossora (2022) [FLAC]",
+        "labels": [],
+        "password": "SEKRET123",
+        "cat": "music",
+        "mbleft": "250.00",
+        "mb": "500.00",
+        "size": "500.0 MB",
+        "sizeleft": "250.0 MB",
+        "percentage": "50",
+        "mbmissing": "0.00",
+        "direct_unpack": null,
+        "status": "Downloading",
+        "timeleft": "0:00:25",
+        "avg_age": "3d",
+        "time_added": 1760860800
+      },
+      {
+        "index": 1,
+        "nzo_id": "SABnzbd_nzo_lonely",
+        "priority": "Normal",
+        "script": "None",
+        "filename": "Some.Manual.Download.2026",
+        "password": "",
+        "cat": "*",
+        "mbleft": "1000.00",
+        "mb": "1000.00",
+        "percentage": "0",
+        "status": "Queued",
+        "timeleft": "0:00:00"
+      },
+      {
+        "index": 2,
+        "nzo_id": "SABnzbd_nzo_url",
+        "priority": "Normal",
+        "script": "None",
+        "filename": "Trying https://idx.example/getnzb?apikey=IDXKEY123&id=7",
+        "password": "",
+        "cat": "*",
+        "mbleft": "0.00",
+        "mb": "0.00",
+        "percentage": "0",
+        "status": "Grabbing",
+        "timeleft": "0:00:00"
+      }
+    ]
+  }
+}

@@ -1,0 +1,34 @@
+{
+  "pageInfo": { "pages": 1, "pageSize": 100, "results": 3, "page": 1 },
+  "results": [
+    {
+      "id": 41,
+      "status": 2,
+      "type": "tv",
+      "is4k": false,
+      "createdAt": "@DAY-2@",
+      "updatedAt": "@DAY-2@",
+      "rootFolder": "/data/media/tv",
+      "media": { "id": 12, "mediaType": "tv", "tmdbId": 95396, "tvdbId": 371980, "status": 3, "serviceUrl": "https://tracker.example/announce?passkey=SEKRET123" },
+      "requestedBy": { "id": 4, "email": "alice@example.org", "username": null, "jellyfinUsername": "alice", "displayName": "Alice", "userType": 3, "permissions": 32 },
+      "modifiedBy": { "id": 1, "email": "admin@example.org", "username": "admin" }
+    },
+    {
+      "id": 40,
+      "status": 2,
+      "type": "movie",
+      "is4k": false,
+      "createdAt": "@DAY-3@",
+      "media": { "id": 11, "mediaType": "movie", "tmdbId": 693134, "tvdbId": null, "status": 3 },
+      "requestedBy": { "id": 5, "email": "bob@example.org", "username": "bob", "jellyfinUsername": null }
+    },
+    {
+      "id": 39,
+      "status": 1,
+      "type": "movie",
+      "createdAt": "@DAY-4@",
+      "media": { "id": 13, "mediaType": "movie", "tmdbId": 424242, "status": 2 },
+      "requestedBy": { "id": 5, "email": "bob@example.org", "username": "bob" }
+    }
+  ]
+}

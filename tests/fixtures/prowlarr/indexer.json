@@ -1,0 +1,5 @@
+[
+  { "id": 1, "name": "SecretTracker", "enable": true, "redirect": false, "appProfileId": 1, "protocol": "torrent", "baseUrl": "https://tracker.example/" },
+  { "id": 2, "name": "NZBSecret", "enable": true, "redirect": false, "appProfileId": 1, "protocol": "usenet" },
+  { "id": 3, "name": "OldTracker", "enable": false, "redirect": false, "appProfileId": 1, "protocol": "torrent" }
+]

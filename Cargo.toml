@@ -1,0 +1,34 @@
+[package]
+name = "queuewatch"
+version = "0.1.0"
+edition = "2024"
+license = "AGPL-3.0-only"
+description = "A read-only, OIDC-protected status page for your *arr stack: requests, queues, indexers, calendar"
+repository = "https://github.com/achimcc/queuewatch"
+keywords = ["radarr", "sonarr", "oidc", "self-hosted", "dashboard"]
+
+[dependencies]
+anyhow = "1.0.104"
+axum = "0.8.9"
+axum-extra = { version = "0.12.6", features = ["cookie-private"] }
+base64 = "0.23.1"
+jiff = { version = "0.2.35", features = ["serde"] }
+maud = { version = "0.27.0", features = ["axum"] }
+openidconnect = "4.0.1"
+rand = "0.10.2"
+reqwest = { version = "0.12.28", default-features = false, features = ["rustls-tls", "json"] }
+serde = { version = "1.0.229", features = ["derive"] }
+serde_json = "1.0.151"
+time = "0.3.55"
+tokio = { version = "1.53.1", features = ["rt-multi-thread", "macros", "net", "signal", "sync", "time"] }
+toml = "1.1.5"
+tower-http = { version = "0.6.11", features = ["set-header"] }
+url = "2.5.8"
+
+[dev-dependencies]
+tower = { version = "0.5.3", features = ["util"] }
+wiremock = "0.6.5"
+
+[lints.rust]
+# No `unsafe` anywhere in this crate, and no `#[allow]` can bring it back.
+unsafe_code = "forbid"

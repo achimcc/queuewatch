@@ -1,0 +1,46 @@
+{
+  "page": 1,
+  "pageSize": 1000,
+  "totalRecords": 2,
+  "records": [
+    {
+      "id": 201,
+      "seriesId": 3,
+      "episodeId": 31,
+      "seasonNumber": 2,
+      "series": { "id": 3, "title": "Severance", "year": 2022, "tvdbId": 371980, "tmdbId": 95396, "path": "/data/media/tv/Severance" },
+      "episode": { "id": 31, "seriesId": 3, "seasonNumber": 2, "episodeNumber": 3, "title": "Who Is Alive?", "airDateUtc": "@DAY-3@", "hasFile": false },
+      "size": 4294967296,
+      "title": "Severance.S02.2160p.ATVP.WEB-DL-GRP",
+      "sizeleft": 3221225472,
+      "estimatedCompletionTime": "@DAY+1@",
+      "status": "downloading",
+      "trackedDownloadStatus": "ok",
+      "trackedDownloadState": "downloading",
+      "statusMessages": [{ "title": "x", "messages": ["/data/torrents/x is not writable"] }],
+      "errorMessage": "https://tracker.example/announce?passkey=SEKRET123",
+      "downloadId": "1111111111111111111111111111111111111111",
+      "protocol": "torrent",
+      "downloadClient": "qBittorrent private-box",
+      "indexer": "SecretTracker",
+      "outputPath": "/data/torrents/x/Severance.S02"
+    },
+    {
+      "id": 202,
+      "seriesId": 3,
+      "episodeId": 32,
+      "seasonNumber": 2,
+      "series": { "id": 3, "title": "Severance", "year": 2022, "tvdbId": 371980, "tmdbId": 95396 },
+      "episode": { "id": 32, "seriesId": 3, "seasonNumber": 2, "episodeNumber": 4, "title": "Woe's Hollow", "hasFile": false },
+      "size": 4294967296,
+      "title": "Severance.S02.2160p.ATVP.WEB-DL-GRP",
+      "sizeleft": 3221225472,
+      "estimatedCompletionTime": "@DAY+1@",
+      "status": "downloading",
+      "trackedDownloadStatus": "ok",
+      "trackedDownloadState": "downloading",
+      "downloadId": "1111111111111111111111111111111111111111",
+      "protocol": "torrent"
+    }
+  ]
+}

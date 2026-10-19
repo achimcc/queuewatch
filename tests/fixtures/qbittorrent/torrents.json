@@ -1,0 +1,64 @@
+[
+  {
+    "hash": "abcdef0123456789abcdef0123456789abcdef01",
+    "infohash_v1": "abcdef0123456789abcdef0123456789abcdef01",
+    "name": "Dune.Part.Two.2024.2160p.UHD.BluRay.x265-GRP",
+    "state": "stalledDL",
+    "progress": 0.65,
+    "eta": 7200,
+    "size": 21474836480,
+    "total_size": 21474836480,
+    "amount_left": 7516192768,
+    "dlspeed": 0,
+    "category": "radarr",
+    "tracker": "https://tracker.example/announce?passkey=SEKRET123",
+    "save_path": "/data/torrents/x",
+    "content_path": "/data/torrents/x/Dune.Part.Two.2024.2160p.UHD.BluRay.x265-GRP",
+    "magnet_uri": "magnet:?xt=urn:btih:abcdef&tr=https%3A%2F%2Ftracker.example%2Fannounce%3Fpasskey%3DSEKRET123",
+    "comment": "passkey SEKRET123"
+  },
+  {
+    "hash": "1111111111111111111111111111111111111111",
+    "name": "Severance.S02.2160p.ATVP.WEB-DL-GRP",
+    "state": "downloading",
+    "progress": 0.25,
+    "eta": 3600,
+    "size": 8589934592,
+    "amount_left": 6442450944,
+    "tracker": "https://tracker.example/announce?passkey=SEKRET123",
+    "save_path": "/data/torrents/x"
+  },
+  {
+    "hash": "3333333333333333333333333333333333333333",
+    "name": "debian-13.1.0-amd64-netinst.iso",
+    "state": "downloading",
+    "progress": 0.5,
+    "eta": 8640000,
+    "size": 700000000,
+    "amount_left": 350000000,
+    "tracker": "https://tracker.example/announce?passkey=SEKRET123",
+    "save_path": "/data/torrents/x"
+  },
+  {
+    "hash": "5555555555555555555555555555555555555555",
+    "name": "https://tracker.example/announce?passkey=SEKRET123",
+    "state": "metaDL",
+    "progress": 0,
+    "eta": 8640000,
+    "size": 0,
+    "amount_left": 0,
+    "tracker": "https://tracker.example/announce?passkey=SEKRET123",
+    "save_path": "/data/torrents/x"
+  },
+  {
+    "hash": "4444444444444444444444444444444444444444",
+    "name": "Already.Seeding.Release",
+    "state": "stalledUP",
+    "progress": 1,
+    "eta": 8640000,
+    "size": 1000,
+    "amount_left": 0,
+    "tracker": "https://tracker.example/announce?passkey=SEKRET123",
+    "save_path": "/data/torrents/x"
+  }
+]

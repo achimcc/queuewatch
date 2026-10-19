@@ -1,0 +1,15 @@
+[
+  {
+    "id": 41,
+    "seriesId": 4,
+    "tvdbId": 9001,
+    "seasonNumber": 1,
+    "episodeNumber": 5,
+    "title": "TBA",
+    "airDate": "2026-10-21",
+    "airDateUtc": "@DAY+2@",
+    "hasFile": false,
+    "monitored": true,
+    "series": { "id": 4, "title": "Andor", "tvdbId": 393189, "tmdbId": 83867, "path": "/data/media/tv/Andor" }
+  }
+]

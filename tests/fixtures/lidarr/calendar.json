@@ -1,0 +1,10 @@
+[
+  {
+    "id": 61,
+    "title": "Songs of a Lost World",
+    "foreignAlbumId": "b1c2d3e4-0000-4000-8000-000000000001",
+    "releaseDate": "@DAY+3@",
+    "artist": { "id": 6, "artistName": "The Cure", "path": "/data/media/music/The Cure" },
+    "statistics": { "trackFileCount": 0, "trackCount": 8, "totalTrackCount": 8, "sizeOnDisk": 0, "percentOfTracks": 0 }
+  }
+]

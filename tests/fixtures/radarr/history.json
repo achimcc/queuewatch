@@ -1,0 +1,24 @@
+[
+  {
+    "id": 5001,
+    "movieId": 11,
+    "sourceTitle": "Arrival.2016.1080p.BluRay.x264-GRP",
+    "date": "@DAY-1@",
+    "downloadId": "SABnzbd_nzo_arrival",
+    "eventType": "downloadFolderImported",
+    "data": {
+      "droppedPath": "/data/usenet/complete/Arrival.2016",
+      "importedPath": "/data/media/movies/Arrival (2016)/Arrival.mkv",
+      "downloadClient": "SABnzbd",
+      "indexer": "SecretTracker",
+      "torrentInfoHash": "SEKRET123"
+    },
+    "movie": {
+      "id": 11,
+      "title": "Arrival",
+      "year": 2016,
+      "tmdbId": 329865,
+      "path": "/data/media/movies/Arrival (2016)"
+    }
+  }
+]
