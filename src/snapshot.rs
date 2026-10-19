@@ -30,7 +30,11 @@ pub const UNNAMED: &str = "(unnamed download)";
 
 /// Bumped on any change that an older `serve` could misread. `serve` refuses
 /// a snapshot whose version it does not know rather than guessing.
-pub const SCHEMA_VERSION: u32 = 1;
+///
+/// 2: bindery (books and audiobooks) — new values in [`SourceKind`]
+/// (`bindery`) and [`MediaKind`] (`book`, `audiobook`). A version-1 page
+/// would fail on the first of them anyway; the bump makes it say why.
+pub const SCHEMA_VERSION: u32 = 2;
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Snapshot {
@@ -63,6 +67,7 @@ pub enum SourceKind {
     Pyload,
     Slskd,
     Seerr,
+    Bindery,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -79,6 +84,10 @@ pub enum MediaKind {
     Movie,
     Episode,
     Album,
+    /// An ebook (bindery).
+    Book,
+    /// An audiobook (bindery).
+    Audiobook,
     /// A download no manager claims (a pyLoad link, a manual torrent).
     Other,
 }
@@ -225,4 +234,23 @@ pub struct Request {
     pub progress: Option<f32>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub eta: Option<Timestamp>,
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn json<T: Serialize>(value: &T) -> String {
+        serde_json::to_string(value).unwrap()
+    }
+
+    /// Version 2 is the one that knows bindery. Whoever adds a kind to an
+    /// enum here bumps the version with it, or an older page misreads it.
+    #[test]
+    fn version_two_carries_books_and_bindery() {
+        assert_eq!(SCHEMA_VERSION, 2);
+        assert_eq!(json(&MediaKind::Book), "\"book\"");
+        assert_eq!(json(&MediaKind::Audiobook), "\"audiobook\"");
+        assert_eq!(json(&SourceKind::Bindery), "\"bindery\"");
+    }
 }

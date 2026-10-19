@@ -14,8 +14,8 @@ use std::time::Duration;
 use jiff::{SignedDuration, Timestamp};
 use queuewatch::collect::arr::{Arr, ArrKind};
 use queuewatch::collect::{
-    Source, http, prowlarr::Prowlarr, pyload::Pyload, qbittorrent::Qbittorrent, sabnzbd::Sabnzbd,
-    seerr::Seerr, slskd::Slskd,
+    Source, bindery::Bindery, http, prowlarr::Prowlarr, pyload::Pyload, qbittorrent::Qbittorrent,
+    sabnzbd::Sabnzbd, seerr::Seerr, slskd::Slskd,
 };
 use wiremock::matchers::{any, body_string_contains, header, method, path, query_param};
 use wiremock::{Mock, MockServer, ResponseTemplate};
@@ -317,4 +317,31 @@ pub async fn seerr() -> MockServer {
 
 pub fn seerr_source(server: &MockServer) -> Source {
     Source::Seerr(Seerr::new("Requests", &server.uri(), KEY.into(), client()).unwrap())
+}
+
+/// bindery: the key in `X-Api-Key`, the history filtered to imports. A key in
+/// the query string is not accepted here, although bindery would take it on
+/// a GET: it would end up in every access log.
+pub async fn bindery() -> MockServer {
+    let server = MockServer::start().await;
+    Mock::given(method("GET"))
+        .and(path("/api/v1/queue"))
+        .and(header("X-Api-Key", KEY))
+        .respond_with(json("bindery/queue.json"))
+        .mount(&server)
+        .await;
+    Mock::given(method("GET"))
+        .and(path("/api/v1/history"))
+        .and(header("X-Api-Key", KEY))
+        .and(query_param("eventType", "bookImported"))
+        .and(query_param("offset", "0"))
+        .respond_with(json("bindery/history.json"))
+        .mount(&server)
+        .await;
+    stranger(&server, 401).await;
+    server
+}
+
+pub fn bindery_source(server: &MockServer) -> Source {
+    Source::Bindery(Bindery::new("Books", &server.uri(), KEY.into(), client()).unwrap())
 }

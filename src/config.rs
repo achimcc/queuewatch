@@ -54,6 +54,8 @@ pub struct CollectConfig {
     pub slskd: Vec<ApiKeyInstance>,
     #[serde(default)]
     pub seerr: Vec<ApiKeyInstance>,
+    #[serde(default)]
+    pub bindery: Vec<ApiKeyInstance>,
 }
 
 #[derive(Debug, Clone, Deserialize)]

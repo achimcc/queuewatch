@@ -12,6 +12,7 @@
 //! even deserialized, so no later code can copy it by accident.
 
 pub mod arr;
+pub mod bindery;
 pub mod http;
 pub mod merge;
 pub mod prowlarr;
@@ -76,6 +77,7 @@ pub enum Source {
     Pyload(pyload::Pyload),
     Slskd(slskd::Slskd),
     Seerr(seerr::Seerr),
+    Bindery(bindery::Bindery),
 }
 
 impl Source {
@@ -88,6 +90,7 @@ impl Source {
             Source::Pyload(_) => SourceKind::Pyload,
             Source::Slskd(_) => SourceKind::Slskd,
             Source::Seerr(_) => SourceKind::Seerr,
+            Source::Bindery(_) => SourceKind::Bindery,
         }
     }
 
@@ -100,6 +103,7 @@ impl Source {
             Source::Pyload(s) => &s.label,
             Source::Slskd(s) => &s.label,
             Source::Seerr(s) => &s.label,
+            Source::Bindery(s) => &s.label,
         }
     }
 
@@ -112,6 +116,7 @@ impl Source {
             Source::Pyload(s) => s.fetch(round).await,
             Source::Slskd(s) => s.fetch(round).await,
             Source::Seerr(s) => s.fetch().await,
+            Source::Bindery(s) => s.fetch(round).await,
         }
     }
 }
@@ -127,6 +132,7 @@ fn kind_name(kind: SourceKind) -> &'static str {
         SourceKind::Pyload => "pyload",
         SourceKind::Slskd => "slskd",
         SourceKind::Seerr => "seerr",
+        SourceKind::Bindery => "bindery",
     }
 }
 
@@ -204,6 +210,12 @@ impl Collector {
             let s = seerr::Seerr::new(&i.label, &i.url, key, client.clone())
                 .with_context(|| format!("seerr {:?}", i.label))?;
             sources.push(Source::Seerr(s));
+        }
+        for i in &config.bindery {
+            let key = read_secret(&i.api_key_file)?;
+            let s = bindery::Bindery::new(&i.label, &i.url, key, client.clone())
+                .with_context(|| format!("bindery {:?}", i.label))?;
+            sources.push(Source::Bindery(s));
         }
         Ok(Collector::new(
             sources,

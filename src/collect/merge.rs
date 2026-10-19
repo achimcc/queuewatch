@@ -26,7 +26,7 @@ pub struct Tracked {
 /// What one source contributed to a round.
 #[derive(Debug, Clone, Default, PartialEq)]
 pub struct Contribution {
-    /// Queue entries of a manager (Radarr, Sonarr, Lidarr).
+    /// Queue entries of a manager (Radarr, Sonarr, Lidarr, bindery).
     pub managed: Vec<Tracked>,
     /// Entries of a download client (SABnzbd, qBittorrent, pyLoad, slskd).
     pub client: Vec<Tracked>,

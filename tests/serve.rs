@@ -220,7 +220,7 @@ async fn an_expired_session_is_no_session() {
 
 #[tokio::test]
 async fn a_signed_in_person_sees_only_their_own_requests_but_the_whole_queue() {
-    let server = collector(snapshot(1)).await;
+    let server = collector(snapshot(queuewatch::snapshot::SCHEMA_VERSION)).await;
     let cookie = session_for("ada", Some("ada@example.org"), &[]);
     let response = get(
         app(format!("{}/snapshot", server.uri()), Setup::default()),
@@ -283,7 +283,7 @@ async fn a_signed_in_person_sees_only_their_own_requests_but_the_whole_queue() {
 
 #[tokio::test]
 async fn the_page_speaks_german_when_asked() {
-    let server = collector(snapshot(1)).await;
+    let server = collector(snapshot(queuewatch::snapshot::SCHEMA_VERSION)).await;
     let cookie = session_for("ada", None, &[]);
     let setup = Setup {
         lang: Lang::De,
@@ -315,7 +315,7 @@ async fn the_page_speaks_german_when_asked() {
 /// the page shows it in its own language, and never the marker itself.
 #[tokio::test]
 async fn a_withheld_name_is_said_in_the_language_of_the_page() {
-    let mut body = snapshot(1);
+    let mut body = snapshot(queuewatch::snapshot::SCHEMA_VERSION);
     body["queue"][0]["title"] = json!(queuewatch::snapshot::UNNAMED);
     let server = collector(body).await;
     let cookie = session_for("ada", None, &[]);
@@ -339,7 +339,7 @@ async fn a_withheld_name_is_said_in_the_language_of_the_page() {
 
 #[tokio::test]
 async fn without_the_required_group_the_answer_is_403() {
-    let server = collector(snapshot(1)).await;
+    let server = collector(snapshot(queuewatch::snapshot::SCHEMA_VERSION)).await;
     let setup = || Setup {
         required_group: Some("Friends"),
         ..Setup::default()
@@ -429,7 +429,10 @@ async fn the_last_good_snapshot_is_shown_when_the_collector_goes_away() {
     // One good answer, then only errors.
     let server = MockServer::start().await;
     Mock::given(method("GET"))
-        .respond_with(ResponseTemplate::new(200).set_body_json(snapshot(1)))
+        .respond_with(
+            ResponseTemplate::new(200)
+                .set_body_json(snapshot(queuewatch::snapshot::SCHEMA_VERSION)),
+        )
         .up_to_n_times(1)
         .with_priority(1)
         .mount(&server)
@@ -601,7 +604,7 @@ async fn signing_in_without_a_provider_says_so() {
 /// rely on one anywhere — a `style=` would simply be dropped by the browser.
 #[tokio::test]
 async fn the_page_carries_no_inline_style() {
-    let server = collector(snapshot(1)).await;
+    let server = collector(snapshot(queuewatch::snapshot::SCHEMA_VERSION)).await;
     let cookie = session_for("ada", None, &[]);
     for lang in [Lang::En, Lang::De] {
         let setup = Setup {
@@ -626,7 +629,7 @@ async fn the_page_carries_no_inline_style() {
 /// screen readers, and the `<progress>` itself carries a label.
 #[tokio::test]
 async fn the_ascii_bar_renders_empty_half_and_full() {
-    let mut body = snapshot(1);
+    let mut body = snapshot(queuewatch::snapshot::SCHEMA_VERSION);
     body["queue"] = json!([
         { "kind": "movie", "title": "Empty", "ids": {}, "transport": "usenet",
           "state": "queued", "origin": "manager", "progress": 0.0 },
@@ -684,7 +687,7 @@ async fn dump_page() {
     let long_name = &format!("{long_name}{}", "X".repeat(120 - long_name.len()));
     assert_eq!(long_name.len(), 120);
     let body = json!({
-        "version": 1,
+        "version": queuewatch::snapshot::SCHEMA_VERSION,
         "taken_at": mins(-3).to_string(),
         "sources": [
             { "kind": "radarr", "label": "Movies", "available": true },

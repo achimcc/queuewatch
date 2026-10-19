@@ -20,6 +20,7 @@ async fn no_message_path_tracker_or_name_reaches_the_snapshot() {
     let pyload = common::pyload().await;
     let slskd = common::slskd().await;
     let seerr = common::seerr().await;
+    let bindery = common::bindery().await;
     let collector = Collector::new(
         vec![
             common::arr_source(ArrKind::Radarr, "Movies", &radarr),
@@ -31,6 +32,7 @@ async fn no_message_path_tracker_or_name_reaches_the_snapshot() {
             common::pyload_source(&pyload, common::PASSWORD),
             common::slskd_source(&slskd),
             common::seerr_source(&seerr),
+            common::bindery_source(&bindery),
         ],
         7,
         72,
@@ -44,6 +46,8 @@ async fn no_message_path_tracker_or_name_reaches_the_snapshot() {
         "radarr/queue.json",
         "qbittorrent/torrents.json",
         "slskd/downloads.json",
+        "bindery/queue.json",
+        "bindery/history.json",
     ] {
         assert!(common::fixture(name).contains("SEKRET123"), "{name}");
     }
@@ -77,6 +81,33 @@ async fn no_message_path_tracker_or_name_reaches_the_snapshot() {
             "radarr/queue.json",
             "\"downloadClient\": \"SABnzbd private-box",
         ),
+        // bindery: a free-text grab named by its grab URL, the error
+        // message, the download URL and GUID, the client that did not
+        // answer, and the library path in a history event's data.
+        (
+            "bindery/queue.json",
+            "\"title\": \"https://idx.example/getnzb?id=13&apikey=IDXKEY123",
+        ),
+        (
+            "bindery/queue.json",
+            "\"errorMessage\": \"no book matched files in /data/downloads/books/SEKRET123",
+        ),
+        (
+            "bindery/queue.json",
+            "\"nzbUrl\": \"https://tracker.example/announce?passkey=SEKRET123",
+        ),
+        (
+            "bindery/queue.json",
+            "\"guid\": \"https://tracker.example/torznab/api?t=get&apikey=IDXKEY123",
+        ),
+        (
+            "bindery/queue.json",
+            "\"name\": \"SecretTracker box\", \"message\": \"dial tcp private-box",
+        ),
+        (
+            "bindery/history.json",
+            "\\\"path\\\":\\\"/data/audiobooks/private-box/SEKRET123",
+        ),
     ] {
         assert!(common::fixture(name).contains(carrier), "{name}: {carrier}");
     }
@@ -87,10 +118,10 @@ async fn no_message_path_tracker_or_name_reaches_the_snapshot() {
             "{marker} leaked into the snapshot: {json}"
         );
     }
-    // Withheld, not dropped: the four downloads are still on the page, under
+    // Withheld, not dropped: the five downloads are still on the page, under
     // the neutral marker.
     let unnamed = s.queue.iter().filter(|q| q.title == UNNAMED).count();
-    assert_eq!(unnamed, 4, "{:?}", s.queue);
+    assert_eq!(unnamed, 5, "{:?}", s.queue);
     assert!(!json.contains(common::KEY));
     assert!(!json.contains(common::PASSWORD));
 
@@ -131,6 +162,18 @@ async fn no_message_path_tracker_or_name_reaches_the_snapshot() {
         .find(|q| q.title.starts_with("debian"))
         .unwrap();
     assert_eq!(iso.origin, Origin::Client);
+    // bindery's audiobook found its SABnzbd job.
+    let mythos = s
+        .queue
+        .iter()
+        .find(|q| q.title == "Stephen Fry – Mythos")
+        .unwrap();
+    assert_eq!(mythos.origin, Origin::Manager);
+    assert!(
+        !s.queue
+            .iter()
+            .any(|q| q.title == "Some.Manual.Download.2026")
+    );
     assert_eq!(s.queue[0].state, ItemState::Downloading);
 
     // Requests learn their progress from the queue.

@@ -155,11 +155,11 @@ mod tests {
 
     #[test]
     fn a_different_version_is_refused_even_when_it_would_parse() {
-        let body = br#"{"version":2,"taken_at":"2026-10-19T08:00:00Z","sources":[],"queue":[],
+        let body = br#"{"version":1,"taken_at":"2026-10-19T08:00:00Z","sources":[],"queue":[],
             "indexers":{"enabled":0,"healthy":0,"known":false},"calendar":[],"recent":[],"requests":[]}"#;
         let err = parse(body).expect_err("must refuse");
-        assert!(err.to_string().contains("version 2"), "{err}");
-        let ok = String::from_utf8_lossy(body).replace("\"version\":2", "\"version\":1");
+        assert!(err.to_string().contains("version 1"), "{err}");
+        let ok = String::from_utf8_lossy(body).replace("\"version\":1", "\"version\":2");
         assert!(parse(ok.as_bytes()).is_ok());
         assert!(parse(b"{}").is_err());
     }

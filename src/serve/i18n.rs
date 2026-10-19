@@ -333,10 +333,14 @@ impl Strings {
             (Lang::En, MediaKind::Movie) => "Movie",
             (Lang::En, MediaKind::Episode) => "Episode",
             (Lang::En, MediaKind::Album) => "Album",
+            (Lang::En, MediaKind::Book) => "Book",
+            (Lang::En, MediaKind::Audiobook) => "Audiobook",
             (Lang::En, MediaKind::Other) => "Download",
             (Lang::De, MediaKind::Movie) => "Film",
             (Lang::De, MediaKind::Episode) => "Folge",
             (Lang::De, MediaKind::Album) => "Album",
+            (Lang::De, MediaKind::Book) => "Buch",
+            (Lang::De, MediaKind::Audiobook) => "Hörbuch",
             (Lang::De, MediaKind::Other) => "Download",
         }
     }
@@ -405,6 +409,7 @@ impl Strings {
             | (Lang::En, SourceKind::Pyload)
             | (Lang::En, SourceKind::Slskd) => "downloads",
             (Lang::En, SourceKind::Seerr) => "requests",
+            (Lang::En, SourceKind::Bindery) => "books",
             (Lang::De, SourceKind::Radarr) => "Filme",
             (Lang::De, SourceKind::Sonarr) => "Serien",
             (Lang::De, SourceKind::Lidarr) => "Musik",
@@ -414,6 +419,7 @@ impl Strings {
             | (Lang::De, SourceKind::Pyload)
             | (Lang::De, SourceKind::Slskd) => "Downloads",
             (Lang::De, SourceKind::Seerr) => "Wünsche",
+            (Lang::De, SourceKind::Bindery) => "Bücher",
         }
     }
 }
@@ -421,6 +427,16 @@ impl Strings {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn books_and_audiobooks_have_words_in_both_languages() {
+        assert_eq!(EN.kind(MediaKind::Book), "Book");
+        assert_eq!(EN.kind(MediaKind::Audiobook), "Audiobook");
+        assert_eq!(DE.kind(MediaKind::Book), "Buch");
+        assert_eq!(DE.kind(MediaKind::Audiobook), "Hörbuch");
+        assert_eq!(EN.source_kind(SourceKind::Bindery), "books");
+        assert_eq!(DE.source_kind(SourceKind::Bindery), "Bücher");
+    }
 
     #[test]
     fn durations_keep_two_units_at_most() {

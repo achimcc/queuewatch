@@ -500,3 +500,183 @@ async fn seerr_paging_stops_after_ten_pages() {
     let requests = server.received_requests().await.unwrap();
     assert_eq!(request_pages(&requests), 10);
 }
+
+#[tokio::test]
+async fn bindery_names_author_and_book_and_tells_books_from_audiobooks() {
+    let server = common::bindery().await;
+    let s = one(common::bindery_source(&server)).await;
+    assert!(s.sources[0].available);
+    // The imported download is left to "recently added"; downloading first,
+    // soonest done first, then the rest by title.
+    assert_eq!(
+        titles(&s),
+        [
+            "Stephen Fry – Mythos",
+            "Andy Weir – Project Hail Mary",
+            UNNAMED,
+            "Ursula K. Le Guin – The Dispossessed",
+        ]
+    );
+    let mythos = &s.queue[0];
+    assert_eq!(mythos.kind, MediaKind::Audiobook);
+    assert_eq!(mythos.transport, Transport::Usenet);
+    assert!((mythos.progress - 0.1).abs() < 1e-6);
+    let mary = &s.queue[1];
+    assert_eq!(mary.kind, MediaKind::Book);
+    assert_eq!(mary.transport, Transport::Torrent);
+    assert_eq!(mary.state, ItemState::Downloading);
+    assert_eq!(mary.origin, Origin::Manager);
+    assert!((mary.progress - 0.42).abs() < 1e-6);
+    assert_eq!(mary.size_bytes, Some(2_000_000));
+    assert_eq!(mary.left_bytes, Some(1_160_000));
+    let mins = (mary.eta.unwrap().as_second() - s.taken_at.as_second()) / 60;
+    assert!((64..=65).contains(&mins), "{mins}");
+    // A free-text grab without a book, named by its grab URL: withheld, and
+    // its import is blocked.
+    assert_eq!(s.queue[2].state, ItemState::Warning);
+    assert_eq!(s.queue[3].state, ItemState::Failed);
+    assert_eq!(s.queue[3].eta, None);
+
+    // Imports only, inside the window, newest first; the one without a book
+    // keeps its release name.
+    let recent: Vec<_> = s
+        .recent
+        .iter()
+        .map(|r| (r.title.as_str(), r.kind))
+        .collect();
+    assert_eq!(
+        recent,
+        [
+            (
+                "Becky Chambers – A Psalm for the Wild-Built",
+                MediaKind::Book
+            ),
+            ("Terry Pratchett - Small Gods [MP3]", MediaKind::Audiobook),
+        ]
+    );
+}
+
+#[tokio::test]
+async fn bindery_merges_with_sabnzbd_over_the_nzo_id() {
+    let bindery = common::bindery().await;
+    let sab = common::sabnzbd().await;
+    let s = Collector::new(
+        vec![
+            common::bindery_source(&bindery),
+            common::sabnzbd_source(&sab),
+        ],
+        7,
+        72,
+    )
+    .round()
+    .await;
+    assert!(s.sources.iter().all(|x| x.available));
+    // Four from bindery, three from SABnzbd, one of them the same download.
+    assert_eq!(s.queue.len(), 6, "{:?}", titles(&s));
+    assert!(!titles(&s).contains(&"Some.Manual.Download.2026"));
+    let mythos = s
+        .queue
+        .iter()
+        .find(|q| q.title == "Stephen Fry – Mythos")
+        .unwrap();
+    assert_eq!(mythos.origin, Origin::Manager);
+    assert_eq!(mythos.kind, MediaKind::Audiobook);
+    // The numbers are SABnzbd's: queued, nothing loaded yet.
+    assert_eq!(mythos.state, ItemState::Queued);
+    assert_eq!(mythos.progress, 0.0);
+    assert_eq!(mythos.size_bytes, Some(1000 * 1024 * 1024));
+}
+
+#[tokio::test]
+async fn bindery_with_a_wrong_key_is_unavailable() {
+    let server = common::bindery().await;
+    let wrong = queuewatch::collect::Source::Bindery(
+        queuewatch::collect::bindery::Bindery::new(
+            "Books",
+            &server.uri(),
+            "wrong".into(),
+            common::client(),
+        )
+        .unwrap(),
+    );
+    let s = one(wrong).await;
+    assert!(!s.sources[0].available);
+    assert!(s.queue.is_empty());
+}
+
+fn bindery_import(n: u64, created_at: jiff::Timestamp) -> serde_json::Value {
+    serde_json::json!({
+        "id": n, "bookId": n, "eventType": "bookImported",
+        "sourceTitle": format!("Book.{n}.EPUB"), "data": "{}",
+        "createdAt": created_at.to_string(),
+        "book": { "id": n, "title": format!("Book {n}"), "authorId": 1, "authorName": "A" }
+    })
+}
+
+/// A bindery whose import history answers every `offset` with a full page
+/// of 500, all `age` old, claiming `total` events in all.
+async fn paged_bindery(age: jiff::SignedDuration, total: u64) -> MockServer {
+    use wiremock::matchers::{method, path, query_param};
+    let server = MockServer::start().await;
+    let at = jiff::Timestamp::now() - age;
+    for page in 0..12u64 {
+        let items: Vec<_> = (0..500)
+            .map(|i| bindery_import(page * 500 + i, at))
+            .collect();
+        Mock::given(method("GET"))
+            .and(path("/api/v1/history"))
+            .and(query_param("limit", "500"))
+            .and(query_param("offset", (page * 500).to_string()))
+            .respond_with(ResponseTemplate::new(200).set_body_json(serde_json::json!({
+                "items": items, "total": total, "limit": 500, "offset": page * 500
+            })))
+            .mount(&server)
+            .await;
+    }
+    Mock::given(method("GET"))
+        .and(path("/api/v1/queue"))
+        .respond_with(ResponseTemplate::new(200).set_body_json(serde_json::json!({ "items": [] })))
+        .mount(&server)
+        .await;
+    server
+}
+
+fn history_pages(requests: &[wiremock::Request]) -> usize {
+    requests
+        .iter()
+        .filter(|r| r.url.path() == "/api/v1/history")
+        .count()
+}
+
+#[tokio::test]
+async fn bindery_history_is_read_to_its_total() {
+    let server = paged_bindery(jiff::SignedDuration::from_hours(1), 1000).await;
+    let s = one(common::bindery_source(&server)).await;
+    assert!(s.sources[0].available);
+    assert_eq!(s.recent.len(), 1000);
+    let requests = server.received_requests().await.unwrap();
+    assert_eq!(history_pages(&requests), 2, "and not a page more");
+}
+
+/// The history has no date filter: a page that reaches past the window is
+/// the last one asked for, however many events bindery has.
+#[tokio::test]
+async fn bindery_history_stops_at_the_end_of_the_window() {
+    let server = paged_bindery(jiff::SignedDuration::from_hours(100), 1_000_000).await;
+    let s = one(common::bindery_source(&server)).await;
+    assert!(s.sources[0].available);
+    assert!(s.recent.is_empty());
+    let requests = server.received_requests().await.unwrap();
+    assert_eq!(history_pages(&requests), 1);
+}
+
+/// A COUNT THAT NEVER ADDS UP does not loop: ten pages, then stop.
+#[tokio::test]
+async fn bindery_history_stops_after_ten_pages() {
+    let server = paged_bindery(jiff::SignedDuration::from_hours(1), 1_000_000).await;
+    let s = one(common::bindery_source(&server)).await;
+    assert!(s.sources[0].available);
+    assert_eq!(s.recent.len(), 5000);
+    let requests = server.received_requests().await.unwrap();
+    assert_eq!(history_pages(&requests), 10);
+}

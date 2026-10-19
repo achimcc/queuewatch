@@ -4,8 +4,8 @@ A read-only status page for your *arr stack, for the people who use your
 server — not only for whoever administers it.
 
 Your friends want to know *"where is my film?"*. The answer is spread over
-Seerr, Radarr, Sonarr, Lidarr, SABnzbd, qBittorrent, pyLoad, slskd and
-Prowlarr, and every one of them would happily hand an admin API key to
+Seerr, Radarr, Sonarr, Lidarr, bindery, SABnzbd, qBittorrent, pyLoad, slskd
+and Prowlarr, and every one of them would happily hand an admin API key to
 whoever can reach it. queuewatch puts one page in front of all that:
 
 - **My requests** — your own Seerr requests, with state, progress and ETA.
@@ -66,7 +66,7 @@ timeout_secs = 10       # per request, default
 calendar_days = 7       # default
 recent_hours = 72       # default
 
-[[collect.radarr]]      # also: sonarr, lidarr, prowlarr, sabnzbd, slskd, seerr
+[[collect.radarr]]      # also: sonarr, lidarr, prowlarr, sabnzbd, slskd, seerr, bindery
 label = "Movies"
 url = "http://127.0.0.1:7878"
 api_key_file = "/run/credentials/queuewatch-collect.service/radarr"
@@ -95,6 +95,27 @@ group_claim = "groups"
 required_group = "friends"          # optional
 ```
 
+### Books: bindery
+
+[bindery](https://github.com/vavallee/bindery), the Readarr successor, is
+configured like the other managers, with the API key from its settings:
+
+```toml
+[[collect.bindery]]
+label = "Books"
+url = "http://127.0.0.1:8787"
+api_key_file = "/run/credentials/queuewatch-collect.service/bindery"
+```
+
+The collector reads its queue (`GET /api/v1/queue`) and its import history
+(`GET /api/v1/history?eventType=bookImported`), with the key in the
+`X-Api-Key` header. A queue line is "Author – Book Title", tagged *Book* or
+*Audiobook*, and merges with the SABnzbd or qBittorrent entry of the same
+download. bindery does not record the format on a download, so the tag comes
+from the format token in the release name (`m4b`, `mp3`, … mean audiobook,
+anything else a book) — the same inference bindery itself makes when it
+picks the download client's category. Its wanted list is not read.
+
 "My requests" matches a Seerr request to the signed-in person when Seerr's
 user name equals the `user_claim`, or the e-mail addresses are equal. An
 address counts only when the provider marks it `email_verified: true`.
@@ -118,7 +139,7 @@ TLS in front of the collector. On NixOS,
 
 ```nix
 {
-  inputs.queuewatch.url = "github:achimcc/queuewatch/v0.1.0";
+  inputs.queuewatch.url = "github:achimcc/queuewatch/v0.2.0";
   # in a module:
   imports = [ inputs.queuewatch.nixosModules.default ];
   services.queuewatch = {

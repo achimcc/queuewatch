@@ -1,0 +1,42 @@
+{
+  "items": [
+    {
+      "id": 501,
+      "bookId": 104,
+      "eventType": "bookImported",
+      "sourceTitle": "Becky.Chambers-A.Psalm.for.the.Wild-Built.EPUB",
+      "data": "{\"format\":\"ebook\",\"path\":\"/data/books/Becky Chambers/SEKRET123.epub\"}",
+      "createdAt": "@DAY-0@",
+      "book": { "id": 104, "title": "A Psalm for the Wild-Built", "authorId": 10, "authorName": "Becky Chambers" }
+    },
+    {
+      "id": 500,
+      "bookId": null,
+      "eventType": "bookImported",
+      "sourceTitle": "Terry Pratchett - Small Gods [MP3]",
+      "data": "{\"format\":\"audiobook\",\"path\":\"/data/audiobooks/private-box/SEKRET123\"}",
+      "createdAt": "@DAY-1@"
+    },
+    {
+      "id": 499,
+      "bookId": 105,
+      "eventType": "grabbed",
+      "sourceTitle": "Some.Grab.EPUB",
+      "data": "{\"guid\":\"https://tracker.example/announce?passkey=SEKRET123\"}",
+      "createdAt": "@DAY-1@",
+      "book": { "id": 105, "title": "Not Imported", "authorId": 11, "authorName": "Nobody" }
+    },
+    {
+      "id": 400,
+      "bookId": 106,
+      "eventType": "bookImported",
+      "sourceTitle": "Old.Book.EPUB",
+      "data": "{\"format\":\"ebook\",\"path\":\"/data/books/old.epub\"}",
+      "createdAt": "@DAY-5@",
+      "book": { "id": 106, "title": "Long Ago", "authorId": 12, "authorName": "Someone" }
+    }
+  ],
+  "total": 4,
+  "limit": 500,
+  "offset": 0
+}
